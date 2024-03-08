@@ -333,7 +333,7 @@ def main():
         rank) if torch.cuda.is_available() else "cpu")
 
     # Initialize Dataset and DataLoader
-    data_path = Path('fasta_chunks/all_chunks.fasta.csv')
+    data_path = sys.argv[1]
     dataset = SupervisedDataset(data_path, max_length=1024)
 
     # rint(len(dataset))

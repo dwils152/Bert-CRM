@@ -37,13 +37,13 @@ class ChromosomeSegmentor:
         return chrom_segments
     
     def process_fasta(self):
-        with open(self.ref_spliti_name, "w") as fout:
+        with open(self.ref_split_name, "w") as fout:
                     
             for record in SeqIO.parse(self.ref_genome, "fasta"):
                 chrom_segments = self._break_chromosome(record, self.length, self.overlap)
                 for start, segment in chrom_segments:
                     fout.write(f">{record.id}:{start}-{start+len(segment)}\n{segment}\n")
-        return self.ref_split
+        return self.ref_split_name
 
 def main():
     parser = argparse.ArgumentParser(description='Process fasta sequences.')

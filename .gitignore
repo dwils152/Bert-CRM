@@ -1,0 +1,9 @@
+data/**
+work/**
+results/**
+.nextflow.log 
+.nextflow.log.*
+nextflow.config
+.nextflow/**
+*.err
+*.out
