@@ -18,7 +18,9 @@ echo ""
 # Code starts here -----------------------------------------
 
 export NXF_TEMP=/scratch/dwils152/tmp
-nextflow run supervised.nf -resume
+export export TMPDIR=/scratch/dwils152/tmp
+#nextflow run supervised.nf -resume
+nextflow run analysis-supervised.nf -resume
 
 cd $SLURM_SUBMIT_DIR
 echo "Hello World! I ran on compute node $(/bin/hostname -s)"
