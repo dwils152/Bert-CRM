@@ -40,7 +40,7 @@ def tqdm_wrapper(iterable, rank, *args, **kwargs):
         return iterable
 
 
-def custom_collate_fn(batch):
+def supervised_collate_fn(batch):
     input_ids = torch.stack([item[0] for item in batch])
     attention_mask = torch.stack([item[1] for item in batch])
     labels = torch.stack([item[2] for item in batch])
@@ -48,4 +48,10 @@ def custom_collate_fn(batch):
 
     return input_ids, attention_mask, labels, coordinates
 
+def unsupervised_collate_fn(batch):
+    input_ids = torch.stack([item[0] for item in batch])
+    attention_mask = torch.stack([item[1] for item in batch])
+    coordinates = [item[2] for item in batch]  # List of coordinate lists
+
+    return input_ids, attention_mask, coordinates
 
