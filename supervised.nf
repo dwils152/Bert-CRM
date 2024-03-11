@@ -1,15 +1,15 @@
 #!/users/dwils152/bin nextflow
 nextflow.enable.dsl=2
 
-mouse_genome = channel.fromPath("${params.data}/mouse/mm10.fa")
-mouse_crm = channel.fromPath("${params.data}/mouse/Mouse_CRMs_lte_1e-6.bed")
-mouse_high_pval = channel.fromPath("${params.data}/mouse/Mouse_CRMs_gt_1e-6.bed")
-mouse_non_covered = channel.fromPath("${params.data}/mouse/non-coverage.bed")
+mouse_genome = "${params.data}/mouse/mm10.fa"
+mouse_crm = "${params.data}/mouse/Mouse_CRMs_lte_1e-6.bed"
+mouse_high_pval = "${params.data}/mouse/Mouse_CRMs_gt_1e-6.bed"
+mouse_non_covered = "${params.data}/mouse/non-coverage.bed"
 
-human_genome = channel.fromPath("${params.data}/human/hg38.fa")
-human_crm = channel.fromPath("${params.data}/human/Human_CRMs_lte_1e-6.bed")
-human_high_pval = channel.fromPath("${params.data}/human/Human_CRMs_gt_1e-6.bed")
-human_non_covered = channel.fromPath("${params.data}/human/non-coverage.bed")
+human_genome = "${params.data}/human/hg38.fa"
+human_crm = "${params.data}/human/Human_CRMs_lte_1e-6.bed"
+human_high_pval = "${params.data}/human/Human_CRMs_gt_1e-6.bed"
+human_non_covered = "${params.data}/human/non-coverage.bed"
 
 test_dataset = channel.fromPath("/projects/zcsu_research1/dwils152/Bert-CRM/results/mouse/labels_chunk/chunk_99.fa.csv")
 
@@ -17,16 +17,15 @@ process mask_genome {
     label "Orion"
     publishDir "${params.publish_dir}/${organism}", mode: 'copy' 
     input:
-        path genome
-        path non_covered
-        path high_pval
-        val organism
+        tuple path(genome), path(non_covered), path(high_pval), val(organism)
     output:
-        path "*_masked.fa"
+        tuple path("*_masked.fa"), val(organism)
     script:
         """
+        genome=${genome}
+        outfile=\${genome%.*}_masked.fa
         bedtools maskfasta -fi ${genome} -bed ${non_covered} -fo tmp.fa
-        bedtools maskfasta -fi tmp.fa -bed ${high_pval} -fo ${genome}_masked.fa
+        bedtools maskfasta -fi tmp.fa -bed ${high_pval} -fo \$outfile
         """
 }
 
@@ -34,10 +33,9 @@ process remove_scaffolds {
     label "Orion"
     publishDir "${params.publish_dir}/${organism}", mode: 'copy' 
     input:
-        path genome
-        val organism
+        tuple path(genome), val(organism)
     output:
-        path "*_no_scaffolds.fa"
+        tuple path("*_no_scaffolds.fa"), val(organism)
     script:
         """
         python ${params.scripts}/remove_scaffold.py ${genome}
@@ -48,10 +46,9 @@ process split_genome {
     label "Orion"
     publishDir "${params.publish_dir}/${organism}", mode: 'copy' 
     input:
-        path genome
-        val organism
+        tuple path(genome), val(organism)
     output:
-        path "*.fa"
+        tuple path("*.fa"), val(organism)
     script:
         """
         python ${params.scripts}/segment_genome.py ${genome}
@@ -62,10 +59,9 @@ process chunk_for_labels {
     label "Orion"
     publishDir "${params.publish_dir}/${organism}", mode: 'copy'
     input:
-        path split_genome
-        val organism
+        tuple path(split_genome), val(organism)
     output:
-        path "fasta_chunks/*.fa"
+        tuple val(organism), path("fasta_chunks/*.fa")
     script:
         """
         ${params.scripts}/chunk.sh ${split_genome} 6500
@@ -77,11 +73,9 @@ process generate_labels {
     conda "/users/dwils152/.conda/envs/dna3"
     publishDir "${params.publish_dir}/${organism}/labels_chunk", mode: 'copy'
     input:
-        path chunk
-        path crm
-        val organism
+        tuple val(organism), path(crm), path(chunk)
     output:
-        path "*.csv"
+        tuple (path "*.csv"), val(organism)
     script:
         """
         export TOKENIZERS_PARALLELISM=false
@@ -93,10 +87,9 @@ process cat_labels {
     label "Orion"
     publishDir "${params.publish_dir}/${organism}", mode: 'copy'
     input:
-        path chunked_labels
-        val organism
+        tuple path(all_labels), val(organism)
     output:
-        path "all_labels.csv"
+        tuple path("all_labels.csv"), val(organism)
     script:
         """
         cat *.csv > all_labels.csv
@@ -104,58 +97,66 @@ process cat_labels {
 
 }
 
-process predict {
+process train_crf {
     label "GPU"
     conda "/users/dwils152/.conda/envs/dna3"
-    publishDir "${params.publish_dir}/${organism}/prediction", mode: 'copy'
+    publishDir "${params.publish_dir}/${organism}/train_crf", mode: 'copy'
     input:
-        path test_data
-        val organism
+        tuple path(all_labels), val(organism)
     output:
         path "predictions_rank_*.npy"
         path "true_labels_rank_*.npy"
         path "model.pth"
+        val organism
     script:
         """
         export TOKENIZERS_PARALLELISM=false
         python -m torch.distributed.run \
         --nnodes=1 \
         --nproc_per_node=4 \
-        ${params.scripts}/train.py ${test_data}
+        ${params.scripts}/train.py --use_crf --data_path ${all_labels}
         """
 }
 
-process predict_no_crf {
+process train_no_crf {
     label "GPU"
     conda "/users/dwils152/.conda/envs/dna3"
-    publishDir "${params.publish_dir}/${organism}/prediction_no_crf", mode: 'copy'
+    publishDir "${params.publish_dir}/${organism}/train_no_crf", mode: 'copy'
     input:
-        path test_data
-        val organism
+        tuple path(all_labels), val(organism)
     output:
         path "predictions_rank_*.npy"
         path "true_labels_rank_*.npy"
         path "proba_rank_*.npy"
         path "model.pth"
+        val organism
     script:
         """
         export TOKENIZERS_PARALLELISM=false
         python -m torch.distributed.run \
         --nnodes=1 \
         --nproc_per_node=4 \
-        ${params.scripts}/train_no_crf.py ${test_data}
+        ${params.scripts}/train.py --data_path ${all_labels}
         """
 }
 
 
 workflow {
-        mask_genome(mouse_genome, mouse_non_covered, mouse_high_pval, "mouse")
-        remove_scaffolds(mask_genome.out, "mouse")
-        split_genome(remove_scaffolds.out, "mouse")
-        chunk_for_labels(split_genome.out, "mouse")
-        generate_labels(chunk_for_labels.out.flatten(), mouse_crm.first(), "mouse")
-        cat_labels(generate_labels.out.collect(), "mouse")
-        predict(test_dataset, "mouse")
-        predict_no_crf(test_dataset, "mouse")
+
+        input_data = Channel.from(tuple(mouse_genome, mouse_non_covered, mouse_high_pval, "mouse"),
+                                  tuple(human_genome, human_non_covered, human_high_pval, "human"))
+
+        input_data | mask_genome | remove_scaffolds | split_genome | chunk_for_labels
+
+        org_crm = Channel.from(tuple("mouse", mouse_crm), tuple("human", human_crm))
+                         .join(chunk_for_labels.out)
+                         .flatMap{ org, crm, chunk_list -> 
+                            chunk_list.collect{ chunk -> tuple(org, crm, chunk) } }
+
+        org_crm | generate_labels
+
+        labels = generate_labels.out.groupTuple(by: 1) | cat_labels
         
+        train_crf(labels)
+        train_no_crf(labels)
 }
