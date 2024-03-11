@@ -17,6 +17,7 @@ class BertForTokenClassification(nn.Module):
         self.bert.pooler = None
         self.classifier = nn.Linear(768, self.num_labels)
         self.freeze_except_lora()
+        self.loss_fn = nn.CrossEntropyLoss()
 
     def freeze_except_lora(self):
         for name, submodule in self.bert.named_children():
@@ -39,7 +40,7 @@ class BertForTokenClassification(nn.Module):
 
         return logits
 
-    def train_model(self, train_loader, val_loader, optimizer, device, rank, loss_fn):
+    def train_model(self, train_loader, val_loader, optimizer, device, rank):
         self.train()
         for batch in tqdm_wrapper(train_loader, rank, desc="Training"):
             input_ids, attention_mask, labels, _ = [
@@ -54,7 +55,7 @@ class BertForTokenClassification(nn.Module):
             active_loss = attention_mask.view(-1) == 1
             active_outputs = logits[active_loss]
             active_labels = labels[active_loss]
-            loss = loss_fn(active_outputs, active_labels.long())
+            loss = self.loss_fn(active_outputs, active_labels.long())
             optimizer.zero_grad()
             loss.backward()
             optimizer.step()
@@ -80,13 +81,13 @@ class BertForTokenClassification(nn.Module):
                 active_loss = attention_mask.view(-1) == 1
                 active_outputs = logits[active_loss]
                 active_labels = labels[active_loss]
-                loss = loss_fn(active_outputs, active_labels.long())
+                loss = self.loss_fn(active_outputs, active_labels.long())
                 val_loss += loss.item()
 
         return val_loss / len(val_loader)
 
-    def test_model(model, data_loader, device, rank):
-        model.eval()
+    def test_model(self, data_loader, device, rank):
+        self.eval()
         predictions, true_labels, max_proba = [], [], []
         prediction_name = f'predictions_rank_{rank}.npy'
         label_name = f'true_labels_rank_{rank}.npy'
@@ -98,7 +99,7 @@ class BertForTokenClassification(nn.Module):
                 input_ids, attention_mask, labels, coordinates = [
                     b.to(device) if isinstance(b, torch.Tensor) else b for b in batch]
 
-                logits = model(input_ids, attention_mask)
+                logits = self.forward(input_ids, attention_mask)
                 logits = logits.view(-1, 2)
                 labels = labels.view(-1)
 

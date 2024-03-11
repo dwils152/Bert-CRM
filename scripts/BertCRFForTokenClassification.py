@@ -111,8 +111,8 @@ class BertCRFForTokenClassification(nn.Module):
                 predicted_labels = torch.tensor(
                     [item for sublist in predictions for item in sublist], device=device)
 
-                print(len(logits))
-                print(logits[0].shape)
+                #print(len(logits))
+                #print(logits[0].shape)
 
                 flat_true_labels = labels.view(-1)
                 flat_predictions = predicted_labels.view(-1)
