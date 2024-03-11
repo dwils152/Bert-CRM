@@ -1,6 +1,7 @@
 data/**
 work/**
 results/**
+supervised_results/**
 .nextflow.log 
 .nextflow.log.*
 nextflow.config
