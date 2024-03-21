@@ -14,6 +14,8 @@ mouse_no_crf_model = "${mouse_train_no_crf_dir}/model.pth"
 human_crf_model = "${human_train_crf_dir}/model.pth"
 human_no_crf_model = "${human_train_no_crf_dir}/model.pth"
 
+//test_data = 
+
 process split_genome {
     label "Orion"
     publishDir "${params.publish_dir}/split_genomes", mode: 'copy' 
@@ -30,14 +32,16 @@ process split_genome {
 process predict_crf {
     label "GPU"
     conda "/users/dwils152/.conda/envs/dna3"
-    publishDir "${human_train_crf_dir}/crf_${pred_ord}_pred_${model_org}", mode: 'copy'
+    publishDir "${params.publish_dir}/crf_${pred_ord}_pred_${model_org}", mode: 'copy'
     input:
         tuple path(split_genome), val(pred_org), path(model), val(model_org)
     output:
         "*"
     script:
         """
+        export TMPDIR=/scratch/dwils152/tmp
         export TOKENIZERS_PARALLELISM=false
+        export OMP_NUM_THREADS=1
         python -m torch.distributed.run \
         --nnodes=1 \
         --nproc_per_node=4 \
@@ -48,14 +52,16 @@ process predict_crf {
 process predict_no_crf {
     label "GPU"
     conda "/users/dwils152/.conda/envs/dna3"
-    publishDir "${mouse_train_no_crf_dir}/no_crf_${pred_ord}_pred_${model_org}", mode: 'copy'
+    publishDir "${params.publish_dir}/no_crf_${pred_ord}_pred_${model_org}", mode: 'copy'
     input:
        tuple path(split_genome), val(pred_org), path(model), val(model_org) 
     output:
         "*"
     script:
         """
+        export TMPDIR=/scratch/dwils152/tmp
         export TOKENIZERS_PARALLELISM=false
+        export OMP_NUM_THREADS=1
         python -m torch.distributed.run \
         --nnodes=1 \
         --nproc_per_node=4 \

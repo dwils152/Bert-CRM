@@ -2,30 +2,32 @@
 nextflow.enable.dsl=2
 
 mouse_genome = "${params.data}/mouse/mm10.fa"
-mouse_crm = "${params.data}/mouse/Mouse_CRMs_lte_1e-6.bed"
-mouse_high_pval = "${params.data}/mouse/Mouse_CRMs_gt_1e-6.bed"
+mouse_crm = "${params.data}/mouse/Mouse_CRMs_lte_0.05.bed"
+//mouse_high_pval = "${params.data}/mouse/Mouse_CRMs_gt_1e-6.bed"
 mouse_non_covered = "${params.data}/mouse/non-coverage.bed"
 
 human_genome = "${params.data}/human/hg38.fa"
-human_crm = "${params.data}/human/Human_CRMs_lte_1e-6.bed"
-human_high_pval = "${params.data}/human/Human_CRMs_gt_1e-6.bed"
+human_crm = "${params.data}/human/Human_CRMs_lte_0.05.bed"
+//human_high_pval = "${params.data}/human/Human_CRMs_gt_1e-6.bed"
 human_non_covered = "${params.data}/human/non-coverage.bed"
 
 test_dataset = channel.fromPath("/projects/zcsu_research1/dwils152/Bert-CRM/results/mouse/labels_chunk/chunk_99.fa.csv")
+
+        //#bedtools maskfasta -fi ${genome} -bed ${non_covered} -fo tmp.fa
+        //#bedtools maskfasta -fi tmp.fa -bed ${high_pval} -fo \$outfile
 
 process mask_genome {
     label "Orion"
     publishDir "${params.publish_dir}/${organism}", mode: 'copy' 
     input:
-        tuple path(genome), path(non_covered), path(high_pval), val(organism)
+        tuple path(genome), path(non_covered), val(organism)
     output:
         tuple path("*_masked.fa"), val(organism)
     script:
         """
         genome=${genome}
         outfile=\${genome%.*}_masked.fa
-        bedtools maskfasta -fi ${genome} -bed ${non_covered} -fo tmp.fa
-        bedtools maskfasta -fi tmp.fa -bed ${high_pval} -fo \$outfile
+        bedtools maskfasta -fi ${genome} -bed ${non_covered} -fo \$outfile
         """
 }
 
@@ -143,8 +145,8 @@ process train_no_crf {
 
 workflow {
 
-        input_data = Channel.from(tuple(mouse_genome, mouse_non_covered, mouse_high_pval, "mouse"),
-                                  tuple(human_genome, human_non_covered, human_high_pval, "human"))
+        input_data = Channel.from(tuple(mouse_genome, mouse_non_covered,  "mouse"),
+                                  tuple(human_genome, human_non_covered,  "human"))
 
         input_data | mask_genome | remove_scaffolds | split_genome | chunk_for_labels
 
