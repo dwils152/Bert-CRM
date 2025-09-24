@@ -7,17 +7,18 @@ import random
 from functools import partial
 import sys
 
-class SequenceDataset(Dataset):
+class SequenceDatasetRegression(Dataset):
     def __init__(
             self,
             fasta_path,
             labels_path,
             base_model,
             max_length,
-            coords_bed=None
+            smoothing=None,
+            transform=None
         ):
 
-        super(SequenceDataset, self).__init__()
+        super(SequenceDatasetRegression, self).__init__()
         self.fasta_path = fasta_path
         self.fasta_list = self._read_fasta()
 
@@ -25,10 +26,12 @@ class SequenceDataset(Dataset):
             labels_path,
             dtype='int32', 
             mode='r', 
-            shape=(len(self.fasta_list), 2047))
+            shape=(5945, 2000))
             #shape=(len(self.fasta_list), len(self.fasta_list[0])))
-        self.max_length = max_length
 
+        self.max_length = max_length
+        self.smoothing = smoothing
+        self.transform = transform
 
         self.tokenizer = AutoTokenizer.from_pretrained(
             base_model,
@@ -50,6 +53,17 @@ class SequenceDataset(Dataset):
     def __getitem__(self, idx):
         record = self.fasta_list[idx]
         sequence = str(record.seq)
+        
+        # Extract pad value
+        pad_str = record.id.split("|")[-1].split("=")[-1]
+        pad = int(pad_str)
+        if pad < 0 or pad > self.max_length:
+            raise ValueError(f"Pad value {pad} exceeds max_length {self.max_length} at index {idx}")
+        
+        # Must check if the pad value is greater 0, otherwise the mask will be all zeros
+        nt_mask = torch.ones(self.max_length)
+        if pad > 0:
+            nt_mask[-pad:] = 0
 
         label = self.mmap_labels[idx, :]
         inputs = self.tokenizer(
@@ -60,12 +74,13 @@ class SequenceDataset(Dataset):
             return_tensors="pt"
         )
 
-        input_ids = inputs["input_ids"].squeeze()  # Remove the batch dimension
-        attention_mask = inputs["attention_mask"].squeeze()
-        label = torch.tensor(label).squeeze().float()
+        input_ids = inputs["input_ids"].squeeze(0)  # Remove the batch dimension
+        attention_mask = inputs["attention_mask"].squeeze(0)
 
-        # print(f'input: {input_ids.shape}')
-        # print(f'mask: {attention_mask.shape}')
-        # print(f'label: {label.shape}')
+        if self.smoothing:
+            label = self.smoothing(label)
 
-        return input_ids, attention_mask, label
+        if self.transform:
+            return input_ids, attention_mask, self.transform(torch.tensor(label))
+        else:
+            return input_ids, attention_mask, torch.tensor(label)

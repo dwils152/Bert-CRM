@@ -1,0 +1,256 @@
+BertModel(
+  (embeddings): BertEmbeddings(
+    (word_embeddings): Embedding(4096, 768, padding_idx=0)
+    (token_type_embeddings): Embedding(2, 768)
+    (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+    (dropout): Dropout(p=0.1, inplace=False)
+  )
+  (encoder): BertEncoder(
+    (layer): ModuleList(
+      (0): BertLayer(
+        (attention): BertUnpadAttention(
+          (self): BertUnpadSelfAttention(
+            (dropout): Dropout(p=0.0, inplace=False)
+            (Wqkv): Linear(in_features=768, out_features=2304, bias=True)
+          )
+          (output): BertSelfOutput(
+            (dense): Linear(in_features=768, out_features=768, bias=True)
+            (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (mlp): BertGatedLinearUnitMLP(
+          (gated_layers): Linear(in_features=768, out_features=6144, bias=False)
+          (act): GELU(approximate='none')
+          (wo): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout): Dropout(p=0.1, inplace=False)
+          (layernorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        )
+      )
+      (1): BertLayer(
+        (attention): BertUnpadAttention(
+          (self): BertUnpadSelfAttention(
+            (dropout): Dropout(p=0.0, inplace=False)
+            (Wqkv): Linear(in_features=768, out_features=2304, bias=True)
+          )
+          (output): BertSelfOutput(
+            (dense): Linear(in_features=768, out_features=768, bias=True)
+            (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (mlp): BertGatedLinearUnitMLP(
+          (gated_layers): Linear(in_features=768, out_features=6144, bias=False)
+          (act): GELU(approximate='none')
+          (wo): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout): Dropout(p=0.1, inplace=False)
+          (layernorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        )
+      )
+      (2): BertLayer(
+        (attention): BertUnpadAttention(
+          (self): BertUnpadSelfAttention(
+            (dropout): Dropout(p=0.0, inplace=False)
+            (Wqkv): Linear(in_features=768, out_features=2304, bias=True)
+          )
+          (output): BertSelfOutput(
+            (dense): Linear(in_features=768, out_features=768, bias=True)
+            (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (mlp): BertGatedLinearUnitMLP(
+          (gated_layers): Linear(in_features=768, out_features=6144, bias=False)
+          (act): GELU(approximate='none')
+          (wo): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout): Dropout(p=0.1, inplace=False)
+          (layernorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        )
+      )
+      (3): BertLayer(
+        (attention): BertUnpadAttention(
+          (self): BertUnpadSelfAttention(
+            (dropout): Dropout(p=0.0, inplace=False)
+            (Wqkv): Linear(in_features=768, out_features=2304, bias=True)
+          )
+          (output): BertSelfOutput(
+            (dense): Linear(in_features=768, out_features=768, bias=True)
+            (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (mlp): BertGatedLinearUnitMLP(
+          (gated_layers): Linear(in_features=768, out_features=6144, bias=False)
+          (act): GELU(approximate='none')
+          (wo): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout): Dropout(p=0.1, inplace=False)
+          (layernorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        )
+      )
+      (4): BertLayer(
+        (attention): BertUnpadAttention(
+          (self): BertUnpadSelfAttention(
+            (dropout): Dropout(p=0.0, inplace=False)
+            (Wqkv): Linear(in_features=768, out_features=2304, bias=True)
+          )
+          (output): BertSelfOutput(
+            (dense): Linear(in_features=768, out_features=768, bias=True)
+            (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (mlp): BertGatedLinearUnitMLP(
+          (gated_layers): Linear(in_features=768, out_features=6144, bias=False)
+          (act): GELU(approximate='none')
+          (wo): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout): Dropout(p=0.1, inplace=False)
+          (layernorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        )
+      )
+      (5): BertLayer(
+        (attention): BertUnpadAttention(
+          (self): BertUnpadSelfAttention(
+            (dropout): Dropout(p=0.0, inplace=False)
+            (Wqkv): Linear(in_features=768, out_features=2304, bias=True)
+          )
+          (output): BertSelfOutput(
+            (dense): Linear(in_features=768, out_features=768, bias=True)
+            (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (mlp): BertGatedLinearUnitMLP(
+          (gated_layers): Linear(in_features=768, out_features=6144, bias=False)
+          (act): GELU(approximate='none')
+          (wo): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout): Dropout(p=0.1, inplace=False)
+          (layernorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        )
+      )
+      (6): BertLayer(
+        (attention): BertUnpadAttention(
+          (self): BertUnpadSelfAttention(
+            (dropout): Dropout(p=0.0, inplace=False)
+            (Wqkv): Linear(in_features=768, out_features=2304, bias=True)
+          )
+          (output): BertSelfOutput(
+            (dense): Linear(in_features=768, out_features=768, bias=True)
+            (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (mlp): BertGatedLinearUnitMLP(
+          (gated_layers): Linear(in_features=768, out_features=6144, bias=False)
+          (act): GELU(approximate='none')
+          (wo): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout): Dropout(p=0.1, inplace=False)
+          (layernorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        )
+      )
+      (7): BertLayer(
+        (attention): BertUnpadAttention(
+          (self): BertUnpadSelfAttention(
+            (dropout): Dropout(p=0.0, inplace=False)
+            (Wqkv): Linear(in_features=768, out_features=2304, bias=True)
+          )
+          (output): BertSelfOutput(
+            (dense): Linear(in_features=768, out_features=768, bias=True)
+            (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (mlp): BertGatedLinearUnitMLP(
+          (gated_layers): Linear(in_features=768, out_features=6144, bias=False)
+          (act): GELU(approximate='none')
+          (wo): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout): Dropout(p=0.1, inplace=False)
+          (layernorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        )
+      )
+      (8): BertLayer(
+        (attention): BertUnpadAttention(
+          (self): BertUnpadSelfAttention(
+            (dropout): Dropout(p=0.0, inplace=False)
+            (Wqkv): Linear(in_features=768, out_features=2304, bias=True)
+          )
+          (output): BertSelfOutput(
+            (dense): Linear(in_features=768, out_features=768, bias=True)
+            (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (mlp): BertGatedLinearUnitMLP(
+          (gated_layers): Linear(in_features=768, out_features=6144, bias=False)
+          (act): GELU(approximate='none')
+          (wo): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout): Dropout(p=0.1, inplace=False)
+          (layernorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        )
+      )
+      (9): BertLayer(
+        (attention): BertUnpadAttention(
+          (self): BertUnpadSelfAttention(
+            (dropout): Dropout(p=0.0, inplace=False)
+            (Wqkv): Linear(in_features=768, out_features=2304, bias=True)
+          )
+          (output): BertSelfOutput(
+            (dense): Linear(in_features=768, out_features=768, bias=True)
+            (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (mlp): BertGatedLinearUnitMLP(
+          (gated_layers): Linear(in_features=768, out_features=6144, bias=False)
+          (act): GELU(approximate='none')
+          (wo): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout): Dropout(p=0.1, inplace=False)
+          (layernorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        )
+      )
+      (10): BertLayer(
+        (attention): BertUnpadAttention(
+          (self): BertUnpadSelfAttention(
+            (dropout): Dropout(p=0.0, inplace=False)
+            (Wqkv): Linear(in_features=768, out_features=2304, bias=True)
+          )
+          (output): BertSelfOutput(
+            (dense): Linear(in_features=768, out_features=768, bias=True)
+            (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (mlp): BertGatedLinearUnitMLP(
+          (gated_layers): Linear(in_features=768, out_features=6144, bias=False)
+          (act): GELU(approximate='none')
+          (wo): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout): Dropout(p=0.1, inplace=False)
+          (layernorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        )
+      )
+      (11): BertLayer(
+        (attention): BertUnpadAttention(
+          (self): BertUnpadSelfAttention(
+            (dropout): Dropout(p=0.0, inplace=False)
+            (Wqkv): Linear(in_features=768, out_features=2304, bias=True)
+          )
+          (output): BertSelfOutput(
+            (dense): Linear(in_features=768, out_features=768, bias=True)
+            (LayerNorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+            (dropout): Dropout(p=0.1, inplace=False)
+          )
+        )
+        (mlp): BertGatedLinearUnitMLP(
+          (gated_layers): Linear(in_features=768, out_features=6144, bias=False)
+          (act): GELU(approximate='none')
+          (wo): Linear(in_features=3072, out_features=768, bias=True)
+          (dropout): Dropout(p=0.1, inplace=False)
+          (layernorm): LayerNorm((768,), eps=1e-12, elementwise_affine=True)
+        )
+      )
+    )
+  )
+  (pooler): BertPooler(
+    (dense): Linear(in_features=768, out_features=768, bias=True)
+    (activation): Tanh()
+  )
+)

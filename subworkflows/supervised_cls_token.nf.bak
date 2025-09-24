@@ -1,0 +1,36 @@
+#!/users/dwils152/bin nextflow
+nextflow.enable.dsl=2
+
+workflow TRAIN_CRMS_MODEL {
+    take:
+        input
+        labels
+    main:
+        //input = input.map{ it -> it[0] }
+        //labels = labels.map{ it -> it[0] }
+        train(input, labels)
+}
+
+process train {
+    cache false
+    label "GPU"
+    publishDir "${params.publish_dir}", mode: 'copy' 
+    input:
+        path(fasta)
+        path(labels)
+    output:
+        path("*")
+    script:
+        """
+        PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+
+        python ${params.scripts}/core/non-distributed.py \
+            --fasta  ${fasta} \
+            --labels ${labels} \
+            --learning_rate 5e-5 \
+            --num_epochs 3 \
+            --run_name multi_gpu_experiment \
+        """
+
+}
+
