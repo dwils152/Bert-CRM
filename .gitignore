@@ -12,3 +12,4 @@ scripts/__pycache__/**
 scripts/chunk*
 scripts/pytorch.slurm
 scripts/test_seqs.fa
+all_results/**
