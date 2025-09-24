@@ -1,54 +1,54 @@
 #!/users/dwils152/bin nextflow
 nextflow.enable.dsl=2
 
-split_genomes = Channel.fromPath('./data/split_genomes/mm10_1000_0_1.0.fa')
+split_genomes = Channel.fromPath('./data/split_genomes/hg38_1000_0_1.0.fa')
 
-process shuffle_dataset {
-    label 'BigMem'
-    publishDir "${params.publish_dir}", mode: 'copy'
+process make_db {
+    label 'Orion'
+    publishDir "${params.publish_dir}", mode: 'copy' 
     input:
         path fasta_1000bp
     output:
-        path '*.fa'
+        path 'db.*'
     script:
-        """
-        python ${params.scripts}/data_processing/shuffled_and_n_last.py ${fasta_1000bp}
-        """
+    """
+    makeblastdb -in ${fasta_1000bp} -dbtype nucl -out db
+    """
+}
+
+process blast {
+    label 'BigMem'
+    publishDir "${params.publish_dir}", mode: 'copy' 
+    input:
+        path db_files
+        path fasta_1000bp
+    output:
+        path 'blast_out'
+    script:
+    """
+    blastn -db db -query ${fasta_1000bp} -out blast_out
+    """
 }
 
 process vsearch {
     label 'Clust'
     publishDir "${params.publish_dir}", mode: 'copy' 
     input:
-        path shuf_fasta_1000bp
+        path fasta_1000bp
     output:
         path 'centroids.fasta'
         path 'clusters.uc'
     script:
     """
-    vsearch --cluster_fast ${shuf_fasta_1000bp} --id 0.35 --centroids centroids.fasta --uc clusters.uc --threads 16
+    vsearch --cluster_fast ${fasta_1000bp} --id 0.35 --centroids centroids.fasta --uc clusters.uc --threads 16
 
-    """
-}
-
-process meshcluster {
-    label 'Clust'
-    publishDir "${params.publish_dir}", mode: 'copy'
-    input:
-        path shuf_fasta_1000bp
-    output:
-        path 'clusters.txt'
-    script:
-    """
-    meshclust2 --id 0.75 ${shuf_fasta_1000bp} > clusters.txt
     """
 }
 
 workflow {
     
-    shuffle_dataset(split_genomes)
-    vsearch(shuffle_dataset.out)
-    //meshcluster(shuffle_dataset.out)
-
+    //make_db(split_genomes)
+    //blast(make_db.out, split_genomes)
+    vsearch(split_genomes)
 
 }

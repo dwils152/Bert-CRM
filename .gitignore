@@ -1,15 +1,10 @@
 data/**
 work/**
 results/**
-supervised_results_*/**
+all_results/**
 .nextflow.log 
 .nextflow.log.*
-nextflow.config
 .nextflow/**
 *.err
 *.out
 scripts/__pycache__/**
-scripts/chunk*
-scripts/pytorch.slurm
-scripts/test_seqs.fa
-all_results/**

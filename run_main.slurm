@@ -20,14 +20,15 @@ module load samtools
 module load bedtools2
 module load gcc/12.3.0
 
-cd BertCRM
-pip install .
-cd ../
+# cd BertCRM
+# pip install .
+# cd ../
 
 export NXF_TEMP=/scratch/dwils152/tmp
 export TMPDIR=/scratch/dwils152/tmp
 
-nextflow run main.nf -resume
+#nextflow run main.nf -resume
+#git add BertCRM/* -v
 
 
 cd $SLURM_SUBMIT_DIR
